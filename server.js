@@ -10,25 +10,12 @@ if(!port){
 
 var server = http.createServer(function(request, response){
   var parsedUrl = url.parse(request.url, true)
-  var path = request.url 
-  var query = ''
-  if(path.indexOf('?') >= 0){ query = path.substring(path.indexOf('?')) }
-  var pathNoQuery = parsedUrl.pathname
-  var queryObject = parsedUrl.query
+  var path = parsedUrl.pathname
+  var query = parsedUrl.query
   var method = request.method
 
-  /******** 从这里开始看，上面不要看 ************/
-
   console.log('HTTP 路径为\n' + path)
-  if(path == '/style.css'){
-    response.setHeader('Content-Type', 'text/css; charset=utf-8')
-    response.write('body{background-color: #ddd;}h1{color: red;}')
-    response.end()
-  }else if(path == '/main.js'){
-    response.setHeader('Content-Type', 'text/javascript; charset=utf-8')
-    //response.write('alert("这是JS执行的")')
-    response.end()
-  }else if(path == '/'){
+  if(path == '/'){
     var string = fs.readFileSync("./index.html","utf-8")
     var amount = fs.readFileSync("./db","utf-8")
     string = string.replace('${amount}',amount);
@@ -38,15 +25,14 @@ var server = http.createServer(function(request, response){
   }else if(path == '/pay'){
     response.setHeader('Content-Type', 'application/javascript; charset=utf-8')
     var amount = fs.readFileSync("./db","utf-8")
-    if(Math.random()>0.5){
-      response.statusCode = 200
-      amount = amount - 1
-      fs.writeFileSync("./db",amount,"utf-8")
-      response.write("alert('hi');window.location.reload()");
-    }else{
-      response.statusCode = 400
-      response.write("fail");
-    }
+   
+    response.statusCode = 200
+    amount = amount - 1
+    fs.writeFileSync("./db",amount,"utf-8")
+    console.log(`${query.callback}`)
+    response.write(`
+      ${query.callback}.call(undefined,'success')
+    `);
     response.end()
   }else{
     response.statusCode = 404
@@ -57,4 +43,4 @@ var server = http.createServer(function(request, response){
 })
 
 server.listen(port)
-console.log('监听 ' + port + ' 成功\n请用在空中转体720度然后用电饭煲打开 http://localhost:' + port)
+console.log('监听 ' + port + ' 成功\n 打开 http://localhost:' + port)
