@@ -35,13 +35,16 @@ var server = http.createServer(function(request, response){
     response.setHeader('Content-Type', 'text/html; charset=utf-8')
     response.write(string)
     response.end()
-  }else if(path == '/pay' && method.toUpperCase() === 'POST'){
+  }else if(path == '/pay'){
+    response.setHeader('Content-Type', 'application/javascript; charset=utf-8')
     var amount = fs.readFileSync("./db","utf-8")
     if(Math.random()>0.5){
+      response.statusCode = 200
       amount = amount - 1
       fs.writeFileSync("./db",amount,"utf-8")
-      response.write("success");
+      response.write("alert('hi');window.location.reload()");
     }else{
+      response.statusCode = 400
       response.write("fail");
     }
     response.end()
